@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/fabric-pytester/scenario.schema.json",
+  "title": "fabric-pytester scenario file",
+  "type": "object",
+  "additionalProperties": {
+    "type": "object",
+    "properties": {
+      "description": { "type": "string" },
+      "tags": { "type": "array", "items": { "type": "string" } },
+      "variables": { "type": "object" },
+      "pipelines": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "item": { "type": "string" },
+            "item_id": { "type": "string" },
+            "job_type": { "type": "string" },
+            "parameters": { "type": "object" }
+          }
+        }
+      }
+    },
+    "patternProperties": {
+      "^insert_[A-Za-z][A-Za-z0-9_]*_\\d+$": { "type": "object" },
+      "^delete_[A-Za-z][A-Za-z0-9_]*_\\d+$": { "type": "object" },
+      "^run_[A-Za-z][A-Za-z0-9_]*_\\d+$": { "type": "object" },
+      "^expected_fabric_\\d+$": { "type": "object" },
+      "^expected_onelake_\\d+$": { "type": "object" },
+      "^expected_[A-Za-z][A-Za-z0-9_]*_\\d+$": { "type": "object" },
+      "^absent_[A-Za-z][A-Za-z0-9_]*_\\d+$": { "type": "object" }
+    }
+  }
+}

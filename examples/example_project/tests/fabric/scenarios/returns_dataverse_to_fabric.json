@@ -1,0 +1,61 @@
+{
+  "returns_dataverse_to_fabric": {
+    "variables": {
+      "return_status": "Requested"
+    },
+    "insert_dataverse_1": {
+      "target": "accounts",
+      "payload": {
+        "name": "Returns Account {random_numbers_9}",
+        "accountnumber": "RET-{random_alpha_numeric_6}"
+      },
+      "capture": {
+        "account_id": "@entity_id"
+      }
+    },
+    "insert_onelake_1": {
+      "target": "file",
+      "folder": "incoming_returns",
+      "filename": "Returns_{random_numbers_9}.json",
+      "records": [
+        {
+          "ReturnId": "RET-{random_numbers_9}",
+          "AccountId": "{account_id}",
+          "Status": "{return_status}"
+        }
+      ]
+    },
+    "run_fabric_1": {
+      "item": "pl_process_returns",
+      "job_type": "Pipeline"
+    },
+    "expected_dataverse_1": {
+      "target": "accounts",
+      "filter": "accountid eq '{account_id}'",
+      "expected_count": 1
+    },
+    "expected_fabric_1": {
+      "sql": "SELECT TOP 1 * FROM analytics.returns WHERE AccountId = '{account_id}'",
+      "expected_count": 1,
+      "fields": {
+        "Status": "{return_status}"
+      }
+    }
+  },
+  "returns_jdbc_source_to_fabric": {
+    "insert_source_jdbc_1": {
+      "sql": "INSERT INTO source_returns(return_id, status) VALUES ('RET-{random_numbers_9}', 'Requested')"
+    },
+    "run_fabric_1": {
+      "item": "pl_process_returns",
+      "job_type": "Pipeline"
+    },
+    "expected_fabric_1": {
+      "sql": "SELECT TOP 1 * FROM analytics.returns WHERE ReturnId = 'RET-{random_numbers_9}'",
+      "expected_count": 1,
+      "fields": {
+        "Status": "Requested"
+      }
+    }
+  }
+}

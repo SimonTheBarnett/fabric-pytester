@@ -1,0 +1,82 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fabric-pytester"
+version = "0.1.18"
+description = "Pytest fixtures and scenario runner for Microsoft Fabric integration tests."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "fabric-pytester contributors" }]
+keywords = ["pytest", "microsoft-fabric", "onelake", "integration-testing"]
+classifiers = [
+  "Framework :: Pytest",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Typing :: Typed",
+]
+dependencies = [
+  "pytest>=8",
+  "requests>=2.31",
+  "azure-identity>=1.16",
+  "azure-storage-file-datalake>=12.14",
+  "mssql-python>=1.0.0",
+]
+
+[project.optional-dependencies]
+pyodbc = ["pyodbc>=5"]
+jdbc = ["jaydebeapi>=1.2", "jpype1>=1.5"]
+keyvault = ["azure-keyvault-secrets>=4.8"]
+
+[dependency-groups]
+dev = [
+  "build>=1.2",
+  "pytest>=8",
+  "ruff>=0.14",
+  "twine>=6",
+  "ty>=0.0.1a20",
+]
+
+[project.urls]
+Homepage = "https://github.com/SimonTheBarnett/fabric-pytester"
+Repository = "https://github.com/SimonTheBarnett/fabric-pytester"
+Issues = "https://github.com/SimonTheBarnett/fabric-pytester/issues"
+Quickstart = "https://github.com/SimonTheBarnett/fabric-pytester/blob/main/README_QUICKSTART.md"
+"Usage Guide" = "https://github.com/SimonTheBarnett/fabric-pytester/blob/main/README_USAGE_GUIDE.md"
+"Integrations and CI" = "https://github.com/SimonTheBarnett/fabric-pytester/blob/main/README_INTEGRATIONS_AND_CI.md"
+Examples = "https://github.com/SimonTheBarnett/fabric-pytester/tree/main/examples"
+
+[project.entry-points.pytest11]
+fabric-pytester = "fabric_pytester.fixtures.plugin"
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.ty]
+environment.python-version = "3.11"
+
+[tool.fabric-pytester]
+scenario_paths = ["examples/scenarios"]
+artifact_dir = "results/artifacts/fabric"
+
+[tool.fabric-pytester.timeouts]
+fabric_job_seconds = 3600
+fabric_sql_seconds = 300
+fabric_poll_interval_seconds = 10

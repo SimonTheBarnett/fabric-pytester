@@ -1,0 +1,19 @@
+[tool.fabric-pytester]
+scenario_paths = ["examples/scenarios"]
+artifact_dir = "results/artifacts/fabric"
+
+[tool.fabric-pytester.timeouts]
+fabric_job_seconds = 3600
+fabric_sql_seconds = 300
+fabric_poll_interval_seconds = 10
+
+[tool.fabric-pytester.environments.dev.fabric]
+base_url = "https://api.fabric.microsoft.com"
+workspace_id = "00000000-0000-0000-0000-000000000000"
+sql_hostname = "example.datawarehouse.fabric.microsoft.com"
+sql_database = "example_lakehouse_or_warehouse"
+
+[tool.fabric-pytester.environments.dev.onelake]
+account_url = "https://onelake.dfs.fabric.microsoft.com"
+workspace = "example_workspace_or_workspace_guid"
+lakehouse_root = "example_lakehouse.Lakehouse/Files"

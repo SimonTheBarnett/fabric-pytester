@@ -1,0 +1,79 @@
+# Example fabric-pytester.toml
+#
+# This example demonstrates a complete standalone configuration using
+# fabric-pytester.toml.
+#
+# It includes:
+# - Development and QA Fabric environments
+# - OneLake configuration
+# - Secret provider configuration
+# - Default Fabric SQL using mssql-python
+# - Optional additional SQL backends using JDBC and pyodbc
+#
+# This file is intentionally separate from pyproject.toml. Keep Python package
+# metadata and pytest settings in pyproject.toml, and keep Fabric test
+# environment configuration here.
+
+scenario_paths = ["tests/e2e/fabric/scenarios"]
+artifact_dir = "results/artifacts/fabric"
+pytest_env_option = "env"
+debug = false
+sql_diagnostics = false
+
+[timeouts]
+fabric_job_seconds = 3600
+fabric_sql_seconds = 300
+fabric_poll_interval_seconds = 10
+
+[environments.dev.fabric]
+base_url = "https://api.fabric.microsoft.com"
+workspace_id = "<fabric-workspace-id>"
+sql_hostname = "<fabric-sql-hostname>"
+sql_database = "<fabric-sql-database>"
+scope = "https://analysis.windows.net/powerbi/api/.default"
+job_api_style = "query"
+token_provider = "client_credentials_url"
+auth_url = "https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/token"
+
+[environments.dev.onelake]
+account_url = "https://onelake.dfs.fabric.microsoft.com"
+workspace = "<onelake-workspace-name>"
+lakehouse_root = "<lakehouse-name>.Lakehouse/Files"
+
+[environments.dev.secrets]
+provider = "auth_token"
+
+[environments.qa.fabric]
+base_url = "https://api.fabric.microsoft.com"
+workspace_id = "<qa-fabric-workspace-id>"
+sql_hostname = "<qa-fabric-sql-hostname>"
+sql_database = "<qa-fabric-sql-database>"
+scope = "https://analysis.windows.net/powerbi/api/.default"
+job_api_style = "query"
+token_provider = "client_credentials_url"
+auth_url = "https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/token"
+
+[environments.qa.onelake]
+account_url = "https://onelake.dfs.fabric.microsoft.com"
+workspace = "<qa-onelake-workspace-name>"
+lakehouse_root = "<lakehouse-name>.Lakehouse/Files"
+
+[environments.qa.secrets]
+provider = "auth_token"
+
+# Optional extra SQL backend using JDBC.
+# This can co-exist with default Fabric SQL, which uses mssql-python.
+[environments.dev.sql_backends.legacy_db]
+sql_adapter = "jdbc"
+jdbc_url = "jdbc:vendor://host:port/database"
+driver_class = "com.vendor.jdbc.Driver"
+driver_path = "libs/jdbc/vendor-driver.jar"
+user_secret = "LEGACY_DB_USER"
+password_secret = "LEGACY_DB_PASSWORD"
+
+# Optional extra SQL backend using pyodbc.
+[environments.dev.sql_backends.reporting_db]
+sql_adapter = "pyodbc"
+connection_string = "Driver={ODBC Driver 18 for SQL Server};Server=tcp:host,1433;Database=db;Encrypt=yes;"
+user_secret = "REPORTING_DB_USER"
+password_secret = "REPORTING_DB_PASSWORD"

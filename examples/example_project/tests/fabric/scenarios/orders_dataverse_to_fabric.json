@@ -1,0 +1,61 @@
+{
+  "orders_dataverse_to_fabric": {
+    "variables": {
+      "order_status": "Submitted"
+    },
+    "insert_dataverse_1": {
+      "target": "accounts",
+      "payload": {
+        "name": "Example Account {random_numbers_9}",
+        "accountnumber": "ACC-{random_alpha_numeric_6}"
+      },
+      "capture": {
+        "account_id": "@entity_id"
+      }
+    },
+    "insert_onelake_1": {
+      "target": "file",
+      "folder": "incoming_orders",
+      "filename": "Orders_{random_numbers_9}.json",
+      "records": [
+        {
+          "OrderId": "ORD-{random_numbers_9}",
+          "AccountId": "{account_id}",
+          "Status": "{order_status}"
+        }
+      ]
+    },
+    "run_fabric_1": {
+      "item": "pl_process_orders",
+      "job_type": "Pipeline"
+    },
+    "expected_dataverse_1": {
+      "target": "accounts",
+      "filter": "accountid eq '{account_id}'",
+      "expected_count": 1
+    },
+    "expected_fabric_1": {
+      "sql": "SELECT TOP 1 * FROM analytics.orders WHERE AccountId = '{account_id}'",
+      "expected_count": 1,
+      "fields": {
+        "Status": "{order_status}"
+      }
+    }
+  },
+  "orders_jdbc_source_to_fabric": {
+    "insert_source_jdbc_1": {
+      "sql": "INSERT INTO source_orders(order_id, status) VALUES ('ORD-{random_numbers_9}', 'Submitted')"
+    },
+    "run_fabric_1": {
+      "item": "pl_process_orders",
+      "job_type": "Pipeline"
+    },
+    "expected_fabric_1": {
+      "sql": "SELECT TOP 1 * FROM analytics.orders WHERE OrderId = 'ORD-{random_numbers_9}'",
+      "expected_count": 1,
+      "fields": {
+        "Status": "Submitted"
+      }
+    }
+  }
+}

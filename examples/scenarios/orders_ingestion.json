@@ -1,0 +1,87 @@
+{
+  "order_file_projects_to_analytics_table": {
+    "description": "Incoming order records are uploaded to OneLake, processed by a Fabric pipeline, and asserted through Fabric SQL.",
+    "tags": ["orders", "fabric-sql", "onelake"],
+    "variables": {
+      "order_status": "Submitted",
+      "currency": "GBP"
+    },
+    "insert_onelake_1": {
+      "target": "file",
+      "folder": "incoming_orders",
+      "filename": "Orders_{random_numbers_9}.json",
+      "records": [
+        {
+          "OrderId": "ORD-{random_numbers_9}",
+          "CustomerReference": "CUS-{random_numbers_6}",
+          "Sku": "SKU-{random_alpha_numeric_4}",
+          "OrderDate": "{current_date}",
+          "Currency": "{currency}",
+          "Status": "{order_status}"
+        }
+      ]
+    },
+    "run_fabric_1": {
+      "item": "pl_process_orders",
+      "job_type": "Pipeline",
+      "parameters": {
+        "validate_only": false
+      }
+    },
+    "expected_fabric_1": {
+      "target": "sql",
+      "sql": "SELECT TOP 1 * FROM analytics.orders WHERE OrderId = 'ORD-{random_numbers_9}' AND Sku = 'SKU-{random_alpha_numeric_4}'",
+      "expected_count": 1,
+      "fields": {
+        "Currency": "{currency}",
+        "Status": "{order_status}"
+      }
+    },
+    "expected_onelake_1": {
+      "target": "file",
+      "folder": "processed_orders",
+      "pattern": "*.json",
+      "contains": "ORD-{random_numbers_9}"
+    }
+  },
+  "order_file_with_registered_dataverse_destination": {
+    "description": "Shows how scenario JSON can refer to a custom destination registered by the consuming test project.",
+    "tags": ["orders", "fabric-sql", "onelake", "extension-example"],
+    "insert_dataverse_1": {
+      "target": "accounts",
+      "payload": {
+        "name": "Test Account {random_numbers_9}",
+        "accountnumber": "ACC-{random_alpha_numeric_6}"
+      },
+      "capture": {
+        "created_account_id": "@entity_id"
+      }
+    },
+    "insert_onelake_1": {
+      "target": "file",
+      "folder": "incoming_orders",
+      "filename": "Orders_{random_numbers_9}.json",
+      "records": [
+        {
+          "OrderId": "ORD-{random_numbers_9}",
+          "AccountId": "{created_account_id}",
+          "Status": "Submitted"
+        }
+      ]
+    },
+    "run_fabric_1": {
+      "item": "pl_process_orders",
+      "job_type": "Pipeline"
+    },
+    "expected_dataverse_1": {
+      "target": "accounts",
+      "filter": "accountid eq '{created_account_id}'",
+      "expected_count": 1
+    },
+    "expected_fabric_1": {
+      "target": "sql",
+      "sql": "SELECT TOP 1 * FROM analytics.orders WHERE AccountId = '{created_account_id}'",
+      "expected_count": 1
+    }
+  }
+}
